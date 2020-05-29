@@ -19,12 +19,14 @@ export default class DropboxChooser extends Component {
     linkType: PropTypes.oneOf([ 'preview', 'direct' ]),
     multiselect: PropTypes.bool,
     extensions: PropTypes.arrayOf(PropTypes.string),
+    requestAuthorizeUrl: PropTypes.string,
     disabled: PropTypes.bool
   };
 
   static defaultProps = {
     cancel: () => {},
     linkType: 'preview',
+    requestAuthorizeUrl: '',
     multiselect: false,
     disabled: false
   };
@@ -53,6 +55,11 @@ export default class DropboxChooser extends Component {
 
   onChoose() {
     if (!this.isDropboxReady() || this.props.disabled) {
+      return null;
+    }
+
+    if (!localStorage.getItem('token-dropbox')) {
+      window.open(this.props.requestAuthorizeUrl, '_blank');
       return null;
     }
 
