@@ -35,6 +35,7 @@ export default class DropboxChooser extends Component {
     super(props);
 
     this.onChoose = this.onChoose.bind(this);
+    this.isAuthorize = false;
   }
 
   componentDidMount() {
@@ -46,6 +47,40 @@ export default class DropboxChooser extends Component {
           'data-app-key': this.props.appKey
         }
       });
+    }
+    window.addEventListener('message', this.handleMessageDropbox, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.handleMessageDropbox);
+  }
+
+  handleMessageDropbox = (e) => {
+    if (window.location.origin === e.origin) {
+      if (e.data.token && this.isAuthorize) {
+        this.isAuthorize = false;
+        const {
+          success,
+          cancel,
+          linkType,
+          multiselect,
+          extensions
+        } = this.props;
+    
+        setTimeout(() => {
+          window.Dropbox.choose({
+            success,
+            cancel,
+            linkType,
+            multiselect,
+            extensions
+          });
+        }, 0);
+      }
+
+      if (e.data.cancelAuthorize) {
+        this.isAuthorize = false;
+      }
     }
   }
 
@@ -60,6 +95,7 @@ export default class DropboxChooser extends Component {
 
     if (!localStorage.getItem('token-dropbox')) {
       window.open(this.props.requestAuthorizeUrl, '_blank');
+      this.isAuthorize = true;
       return null;
     }
 

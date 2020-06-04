@@ -42,7 +42,37 @@ var DropboxChooser = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (DropboxChooser.__proto__ || Object.getPrototypeOf(DropboxChooser)).call(this, props));
 
+    _this.handleMessageDropbox = function (e) {
+      if (window.location.origin === e.origin) {
+        if (e.data.token && _this.isAuthorize) {
+          _this.isAuthorize = false;
+          var _this$props = _this.props,
+              success = _this$props.success,
+              cancel = _this$props.cancel,
+              linkType = _this$props.linkType,
+              multiselect = _this$props.multiselect,
+              extensions = _this$props.extensions;
+
+
+          setTimeout(function () {
+            window.Dropbox.choose({
+              success: success,
+              cancel: cancel,
+              linkType: linkType,
+              multiselect: multiselect,
+              extensions: extensions
+            });
+          }, 0);
+        }
+
+        if (e.data.cancelAuthorize) {
+          _this.isAuthorize = false;
+        }
+      }
+    };
+
     _this.onChoose = _this.onChoose.bind(_this);
+    _this.isAuthorize = false;
     return _this;
   }
 
@@ -58,6 +88,12 @@ var DropboxChooser = function (_Component) {
           }
         });
       }
+      window.addEventListener('message', this.handleMessageDropbox, false);
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      window.removeEventListener('message', this.handleMessageDropbox);
     }
   }, {
     key: 'isDropboxReady',
@@ -73,6 +109,7 @@ var DropboxChooser = function (_Component) {
 
       if (!localStorage.getItem('token-dropbox')) {
         window.open(this.props.requestAuthorizeUrl, '_blank');
+        this.isAuthorize = true;
         return null;
       }
 
