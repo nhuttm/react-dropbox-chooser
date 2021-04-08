@@ -108,7 +108,7 @@ var DropboxChooser = function (_Component) {
       }
 
       if (!localStorage.getItem('token-dropbox')) {
-        window.open(this.props.requestAuthorizeUrl, '_blank');
+        window.open(process.env.DROPBOX_AUTHORIZE_DOWNLOAD_API, '_blank');
         this.isAuthorize = true;
         return null;
       }
@@ -155,13 +155,11 @@ DropboxChooser.propTypes = {
   linkType: _propTypes2.default.oneOf(['preview', 'direct']),
   multiselect: _propTypes2.default.bool,
   extensions: _propTypes2.default.arrayOf(_propTypes2.default.string),
-  requestAuthorizeUrl: _propTypes2.default.string,
   disabled: _propTypes2.default.bool
 };
 DropboxChooser.defaultProps = {
   cancel: function cancel() {},
   linkType: 'preview',
-  requestAuthorizeUrl: '',
   multiselect: false,
   disabled: false
 };
